@@ -1,0 +1,1057 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: linear-gradient(0deg, #0f1013 0%, #121b2b 100%);
+  background-attachment: fixed;
+}
+
+body {
+  font-family: "DM Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #ffffff;
+  min-height: 100.1vh;
+  position: relative;
+  background: linear-gradient(
+    200deg,
+    rgba(46, 81, 185, 0.4) 0%,
+    rgba(46, 81, 185, 0) 800px
+  );
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  background-image: url('../images/noise.jpg');
+  background-size: 25%;
+  background-position: center;
+  background-repeat: repeat;
+  z-index: -1;
+  mix-blend-mode: soft-light;
+  opacity: 0.2;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+/* Header styles */
+header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 20px 15vh;
+}
+
+#app-title {
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin-bottom: 20px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.time-container {
+  display: flex;
+  align-items: center;
+  font-size: 1.2rem;
+  color: rgb(122, 146, 199);
+}
+
+.time {
+  font-size: 5rem;
+  font-weight: 100;
+  letter-spacing: 3px;
+}
+
+.date {
+  font-size: 2rem;
+  font-weight: 200;
+}
+
+.search-container {
+  max-width: 400px;
+  position: relative;
+}
+
+#search-input {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+#search-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+#search-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+/* Main content */
+main {
+  flex: 1;
+  padding: 0 20px;
+}
+
+/* Category styles */
+.category {
+  margin-bottom: 40px;
+  position: relative; /* Important for arrow positioning */
+}
+
+.category-title {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 20px;
+  color: rgba(122, 146, 199, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.category-title::before {
+  content: "";
+  display: block;
+  width: 0px;
+  height: 10px;
+  background: rgba(122, 146, 199, 0.8);
+  margin-right: 0px;
+  opacity: 0;
+  transition-property: width, margin-right, opacity;
+  transition-duration: 0.3s, 0.3s, 0.25s;
+  transition-timing-function: ease-out;
+  border-radius: 2px 5px 5px 2px;
+}
+
+.category:hover,
+.focused-category {
+  .category-title {
+    color: rgba(255, 255, 255, 1);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  .category-title::before {
+    width: 35px;
+    margin-right: 10px;
+    opacity: 1;
+  }
+}
+
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 0 0 10px 0;
+}
+
+/* App card styles */
+.app-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16/9;
+  outline: 4px solid transparent;
+  outline-offset: -4px;
+  position: relative;
+}
+
+/* CATEGORY STYLE PRESETS */
+
+/* Default style - already defined above */
+
+/* Compact style - small square tiles */
+.category[data-style="compact"] {
+  .apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .app-card {
+    aspect-ratio: 1/1;
+  }
+}
+
+/* Portrait style - vertical cards like game covers */
+.category[data-style="portrait"] {
+  .apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .app-card {
+    aspect-ratio: 2/3;
+    padding: 0;
+    overflow: hidden;
+  }
+  .app-icon {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(1);
+    img {
+      width: 100%;
+      height: 100%;
+      max-width: unset;
+      max-height: unset;
+    }
+  }
+}
+
+.category[data-style="portrait"] .app-card:hover,
+.category[data-style="portrait"] .app-card:focus {
+  transform: translateY(-5px) scale(1.02);
+}
+
+.category[data-style="portrait"] .app-card:hover .app-icon,
+.category[data-style="portrait"] .app-card:focus .app-icon {
+  transform: scale(1);
+}
+
+/* List style - horizontal list view */
+.category[data-style="list"] {
+  .apps-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .app-card {
+    aspect-ratio: unset;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 15px 20px;
+    text-align: left;
+  }
+  .app-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 20px 0 0;
+    transform: scale(1);
+  }
+  .app-name {
+    position: static !important;
+    opacity: 1 !important;
+    background: none !important;
+    padding: 0 !important;
+    transform: none !important;
+    font-size: 1.1rem !important;
+    display: block !important;
+  }
+}
+
+/* Large style - big showcase tiles */
+.category[data-style="large"] {
+  .apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 30px;
+  }
+  .app-card {
+    aspect-ratio: 16/10;
+    padding: 30px;
+  }
+  .app-icon {
+    transform: scale(0.8);
+  }
+  .app-card:hover .app-icon,
+  .app-card:focus .app-icon {
+    transform: scale(0.9);
+  }
+}
+
+/* Minimal style - clean, text-focused */
+.category[data-style="minimal"] {
+  .apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+  }
+  .app-card {
+    aspect-ratio: unset;
+    padding: 20px;
+    background: none;
+    backdrop-filter: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  .app-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+    transform: scale(1);
+  }
+  .app-name {
+    position: static !important;
+    opacity: 1 !important;
+    background: none !important;
+    padding: 0 !important;
+    transform: none !important;
+    display: block !important;
+  }
+}
+
+/* Legacy category-specific styles (for backwards compatibility) */
+.category[data-category="Web Tools"]:not([data-style]) {
+  .apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .app-card {
+    aspect-ratio: 1/1;
+  }
+}
+
+.category[data-category="Games"]:not([data-style]) {
+  .apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .app-card {
+    aspect-ratio: 2/3;
+    padding: 0;
+    overflow: hidden;
+  }
+  .app-icon {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(1);
+    img {
+      width: 100%;
+      height: 100%;
+      max-width: unset;
+      max-height: unset;
+    }
+  }
+}
+
+.category[data-category="Games"]:not([data-style]) .app-card:hover,
+.category[data-category="Games"]:not([data-style]) .app-card:focus {
+  transform: translateY(-5px) scale(1.02);
+}
+
+.category[data-category="Games"]:not([data-style]) .app-card:hover .app-icon,
+.category[data-category="Games"]:not([data-style]) .app-card:focus .app-icon {
+  transform: scale(1);
+}
+
+/* Style selector dropdown */
+.style-selector {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-left: auto;
+  margin-right: 10px;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.admin-mode .style-selector {
+  opacity: 1;
+}
+
+.style-selector:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.style-selector option {
+  background: rgba(15, 19, 29, 0.9);
+  color: white;
+}
+
+/* App name hidden by default, shown on hover/focus */
+.app-card .app-name {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+  pointer-events: none;
+  display: none;
+}
+
+/* Focus effects for keyboard navigation */
+.app-card:hover,
+.app-card:focus,
+.app-card.focused {
+  outline: 4px solid rgba(122, 146, 199, 0.8) !important;
+  outline-offset: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 8px 25px rgba(122, 146, 199, 0.3);
+  backdrop-filter: blur(100px);
+}
+
+.app-card:hover .app-name,
+.app-card:focus .app-name,
+.app-card.focused .app-name {
+  opacity: 1;
+}
+
+/* Active state */
+.app-card:active {
+  transform: translateY(-2px) scale(1.01);
+}
+
+.app-icon {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  transition: all 0.3s ease;
+  transform: scale(0.65);
+}
+
+.app-card:hover .app-icon,
+.app-card:focus .app-icon,
+.app-card.focused .app-icon {
+  transform: scale(0.75);
+}
+
+.app-icon img {
+  max-height: 80%;
+  max-width: 80%;
+  object-fit: contain;
+}
+
+/* Hidden elements (keeping for compatibility) */
+.app-type {
+  display: none;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px 0;
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+kbd {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+/* Loading screen */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0deg, #0f1013 0%, #121b2b 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.5s ease;
+  scrollbar-gutter: stable;
+}
+
+#loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  transition: all 0.3s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 400px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.modal-content p {
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.modal-content button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.modal-content button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+html.navigation-mode,
+body.navigation-mode {
+  cursor: none;
+}
+
+body.navigation-mode * {
+  pointer-events: none;
+}
+
+.admin-mode .app-card {
+  transition: none !important;
+  transform: none !important;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
+  }
+
+  .app-card {
+    padding: 15px;
+  }
+
+  .app-icon {
+    font-size: 1.5rem;
+  }
+
+  #app-title {
+    font-size: 2rem;
+  }
+
+  .navigation-mode::before {
+    font-size: 0.8rem;
+    padding: 8px 16px;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    transform: none;
+    text-align: center;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1013;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(122, 146, 199, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(122, 146, 199, 0.4);
+}
+
+/* Remove default focus outline */
+.app-card:focus {
+  outline: none;
+}
+
+/* Ensure icons are not selectable */
+.app-icon,
+.app-icon * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+}
+
+/* Admin Toggle Button */
+.admin-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(122, 146, 199, 0.5);
+  color: white;
+  padding: 8px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.admin-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: rgba(122, 146, 199, 1);
+  transition: fill 0.3s ease;
+}
+
+.admin-toggle:hover svg,
+.admin-toggle.active svg {
+  fill: rgba(255, 255, 255, 1);
+}
+
+.admin-toggle:hover,
+.admin-toggle.active {
+  background: rgba(122, 146, 199, 0.3);
+  box-shadow: 0 4px 15px rgba(122, 146, 199, 0.3);
+}
+
+.admin-toggle.active {
+  border-color: white;
+}
+
+.admin-toggle:hover:not(.active) {
+  border-color: rgba(122, 146, 199, 0.8);
+}
+
+/* Admin Panel */
+.admin-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(15, 19, 29, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  padding: 20px;
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.admin-panel h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.1rem;
+  color: rgba(122, 146, 199, 1);
+}
+
+.admin-panel button {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.admin-panel button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(122, 146, 199, 0.5);
+}
+
+/* Admin Controls on Cards */
+.admin-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  height:100%;
+  width:100%;
+}
+
+.admin-mode .app-card:hover .admin-controls,
+.admin-mode .app-card.focused .admin-controls {
+  opacity: 1;
+}
+
+.admin-controls button {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+/* Move buttons - positioned above the card */
+.move-btn {
+  background: rgba(33, 150, 243, 0.8) !important;
+  color: white !important;
+  font-weight: bold;
+  font-size: 14px !important;
+  border-radius: 8px !important;
+  width: 28px !important;
+  height: 20px !important;
+  position: absolute;
+  top: calc(100% - 35px);
+  z-index: 10;
+}
+
+.move-left-btn {
+  left: 16px;
+ 
+}
+
+.move-right-btn {
+  right:0;
+  
+}
+
+.move-btn:hover {
+  background: rgba(33, 150, 243, 1) !important;
+  transform: scale(1.1) !important;
+}
+
+.move-left-btn:hover {
+  transform: scale(1.1) !important;
+}
+
+.move-right-btn:hover {
+  transform: scale(1.1) !important;
+}
+
+.edit-btn {
+  background: rgba(46, 125, 50, 0.8);
+  color: white;
+}
+
+.edit-btn:hover {
+  background: rgba(46, 125, 50, 1);
+  transform: scale(1.1);
+}
+
+.delete-btn {
+  background: rgba(211, 47, 47, 0.8);
+  color: white;
+}
+
+.delete-btn:hover {
+  background: rgba(211, 47, 47, 1);
+  transform: scale(1.1);
+}
+
+/* Category Header */
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.delete-category-btn {
+  background: rgba(211, 47, 47, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.admin-mode .delete-category-btn {
+  opacity: 1;
+}
+
+.delete-category-btn:hover {
+  background: rgba(211, 47, 47, 1);
+  transform: scale(1.1);
+}
+
+/* Form Modal */
+.form-modal {
+  z-index: 2000;
+}
+
+.form-modal .modal-content {
+  max-width: 500px;
+  width: 90%;
+}
+
+.form-container h3 {
+  margin-bottom: 20px;
+  color: rgba(122, 146, 199, 1);
+  text-align: center;
+}
+
+.form-container label {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.form-container input,
+.form-container select {
+  width: 100%;
+  padding: 8px 12px;
+  margin-top: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.form-container input:focus,
+.form-container select:focus {
+  outline: none;
+  border-color: rgba(122, 146, 199, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.form-container input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-container select option {
+  background: rgba(15, 19, 29, 0.9);
+  color: white;
+}
+
+/* Color picker styles */
+.color-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.color-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.color-input-group label {
+  font-size: 0.8rem;
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.color-input-group input[type="color"] {
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+.color-input-group input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border-radius: 8px;
+}
+
+.color-input-group input[type="color"]::-webkit-color-swatch {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+/* Steam-specific form styling */
+#steam-fields {
+  border: 1px solid rgba(122, 146, 199, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px 0;
+  background: rgba(122, 146, 199, 0.05);
+}
+
+#steam-fields label {
+  margin-bottom: 5px;
+}
+
+#steam-fields small {
+  display: block;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+#fetch-steam-btn {
+  background: rgba(46, 125, 50, 0.8) !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
+  cursor: pointer;
+  font-size: 0.8rem !important;
+  white-space: nowrap;
+  min-width: 80px;
+  transition: all 0.3s ease;
+}
+
+#fetch-steam-btn:hover {
+  background: rgba(46, 125, 50, 1) !important;
+  transform: translateY(-1px);
+}
+
+#fetch-steam-btn:disabled {
+  background: rgba(122, 146, 199, 0.5) !important;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#steam-loading {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.form-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.form-buttons button[type="submit"] {
+  background: rgba(46, 125, 50, 0.8);
+  color: white;
+}
+
+.form-buttons button[type="submit"]:hover {
+  background: rgba(46, 125, 50, 1);
+}
+
+.form-buttons button[type="button"] {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.form-buttons button[type="button"]:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Admin Mode Indicator */
+.admin-mode {
+  border: 2px solid rgba(255, 193, 7, 0.5);
+}
+
+.admin-mode .app-card {
+  cursor: pointer;
+}
+
+.admin-mode .app-card:hover {
+  border: 2px solid rgba(255, 193, 7, 0.8);
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}

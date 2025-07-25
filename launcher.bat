@@ -19,6 +19,12 @@ if not exist "config" mkdir config & if not exist "config\backups" mkdir config\
 if not exist "assets" mkdir assets & if not exist "assets\images" mkdir assets\images & if not exist "assets\icons" mkdir assets\icons
 if not exist "logs" mkdir logs
 
+REM Copy default config if not present
+if not exist "config\config.json" (
+    copy /Y "default_config.json" "config\config.json" >nul
+    echo ✓ Default config.json created
+)
+
 REM Auto-migrate: Move old files
 if exist "config.json" move "config.json" "config\config.json" >nul 2>&1 & echo ✓ Migrated config.json
 if exist "images" xcopy "images\*" "assets\images\" /E /Y >nul 2>&1 & rmdir "images" /S /Q >nul 2>&1 & echo ✓ Migrated images folder

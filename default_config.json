@@ -1,0 +1,238 @@
+{
+  "title": "Easy HTUI",
+  "categoryStyles": {
+    "Streaming": "",
+    "Games": "portrait",
+    "Web Tools": "compact"
+  },
+  "categories": {
+    "Streaming": [
+      {
+        "id": "netflix_001",
+        "name": "Netflix",
+        "type": "website",
+        "url": "https://www.netflix.com",
+        "icon": "",
+        "color1": "#101010",
+        "color2": "#0a0a0a"
+      },
+      {
+        "id": "youtube_001",
+        "name": "YouTube",
+        "type": "website",
+        "url": "https://www.youtube.com",
+        "icon": "",
+        "color1": "#ffffff",
+        "color2": "#ececec"
+      },
+      {
+        "id": "disneyplus_001",
+        "name": "Disney+",
+        "type": "website",
+        "url": "https://www.disneyplus.com",
+        "icon": "",
+        "color1": "#021e29",
+        "color2": "#1b6d82"
+      },
+      {
+        "id": "iplayer_001",
+        "name": "BBC iPlayer",
+        "type": "website",
+        "url": "https://www.bbc.co.uk/iplayer",
+        "icon": "",
+        "color1": "#1d0836",
+        "color2": "#3e0032"
+      },
+      {
+        "id": "plex_001",
+        "name": "Plex",
+        "type": "website",
+        "url": "https://app.plex.tv/desktop",
+        "icon": "",
+        "color1": "#292a2e",
+        "color2": "#010101"
+      },
+        {
+            "id": "twitch_001",
+            "name": "Twitch",
+            "type": "website",
+            "url": "https://www.twitch.tv",
+            "icon": "",
+            "color1": "#6441a5",
+            "color2": "#3b2d6f"
+        },
+        {
+            "id": "hulu_001",
+            "name": "Hulu",
+            "type": "website",
+            "url": "https://www.hulu.com",
+            "icon": "",
+            "color1": "#1ce783",
+            "color2": "#0a9d5f"
+        },
+        {
+            "id": "amazonprime_001",
+            "name": "Amazon Prime Video",
+            "type": "website",
+            "url": "https://www.primevideo.com",
+            "icon": "",
+            "color1": "#232f3e",
+            "color2": "#37475a"
+        },
+        {
+            "id": "apple_tv_001",
+            "name": "Apple TV+",
+            "type": "website",
+            "url": "https://tv.apple.com",
+            "icon": "",
+            "color1": "#000000",
+            "color2": "#333333"
+        },
+        {
+            "id": "hbomax_001",
+            "name": "HBO Max",
+            "type": "website",
+            "url": "https://www.hbomax.com",
+            "icon": "",
+            "color1": "#000000",
+            "color2": "#333333"
+        }
+
+    ],
+    "Game Services": [
+      {
+        "name": "Steam Big Picture",
+        "type": "website",
+        "icon": "",
+        "color1": "#1b2838",
+        "color2": "#184352",
+        "category": "Game Services",
+        "url": "steam://open/bigpicture",
+        "id": "steam_001"
+      },
+      {
+        "name": "Xbox Game Pass",
+        "type": "website",
+        "icon": "",
+        "color1": "#107c0f",
+        "color2": "#054b15",
+        "category": "Game Services",
+        "url": "xbox://gamepass",
+        "id": "gamepass_001"
+      },
+      {
+        "name": "Epic Games",
+        "type": "website",
+        "icon": "",
+        "color1": "#2196f3",
+        "color2": "#1976d2",
+        "category": "Game Services",
+        "url": "com.epicgames.launcher://",
+        "id": "mdj301gl5c3imh0ij7h"
+      }
+    ],
+    "Games": [
+      {
+        "id": "bg3_001",
+        "name": "Baldur's Gate 3",
+        "type": "steam",
+        "path": "steam://rungameid/1086940",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/1086940/library_600x900.jpg"
+      },
+      {
+        "id": "hades_001",
+        "name": "Hades",
+        "type": "steam",
+        "path": "steam://rungameid/1145360",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/1145360/library_600x900.jpg"
+      },
+      {
+        "id": "portal2_001",
+        "name": "Portal 2",
+        "type": "steam",
+        "path": "steam://rungameid/620",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/620/library_600x900.jpg"
+      },
+      {
+        "id": "stardew_001",
+        "name": "Stardew Valley",
+        "type": "steam",
+        "path": "steam://rungameid/413150",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/413150/library_600x900.jpg"
+      },
+      {
+        "id": "rdr2_001",
+        "name": "Red Dead Redemption 2",
+        "type": "steam",
+        "path": "steam://rungameid/1174180",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/1174180/library_600x900.jpg"
+      },
+      {
+        "id": "hollowknight_001",
+        "name": "Hollow Knight",
+        "type": "steam",
+        "path": "steam://rungameid/367520",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/367520/library_600x900.jpg"
+      },
+      {
+        "id": "doom_001",
+        "name": "DOOM",
+        "type": "steam",
+        "path": "steam://rungameid/379720",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/379720/library_600x900.jpg"
+      },
+      {
+        "id": "valheim_001",
+        "name": "Valheim",
+        "type": "steam",
+        "path": "steam://rungameid/892970",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/892970/library_600x900.jpg"
+      },
+      {
+        "id": "cities_001",
+        "name": "Cities: Skylines",
+        "type": "steam",
+        "path": "steam://rungameid/255710",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/255710/library_600x900.jpg"
+      },
+      {
+        "id": "rocket_001",
+        "name": "Rocket League",
+        "type": "steam",
+        "path": "steam://rungameid/252950",
+        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/252950/library_600x900.jpg"
+      }
+    ],
+    "Applications": [],
+    "Web Tools": [
+      {
+        "id": "google_001",
+        "name": "Google Search",
+        "type": "website",
+        "url": "https://www.google.com",
+        "icon": "https://www.google.com/s2/favicons?domain=google.com&sz=64",
+        "color1": "#4285f4",
+        "color2": "#ea4335"
+      },
+      {
+        "id": "wikipedia_001",
+        "name": "Wikipedia",
+        "type": "website",
+        "url": "https://www.wikipedia.org",
+        "icon": "https://www.google.com/s2/favicons?domain=wikipedia.org&sz=64",
+        "color1": "#ffffff",
+        "color2": "#f6f6f6"
+      },
+      {
+        "name": "Reddit",
+        "type": "website",
+        "icon": "https://www.google.com/s2/favicons?domain=reddit.com&sz=64",
+        "color1": "#ff4500",
+        "color2": "#ff6500",
+        "category": "Web Tools",
+        "url": "https://www.reddit.com",
+        "id": "reddit_001"
+      }
+    ]
+  }
+}

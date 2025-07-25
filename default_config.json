@@ -128,7 +128,7 @@
         "color2": "#1976d2",
         "category": "Game Services",
         "url": "com.epicgames.launcher://",
-        "id": "mdj301gl5c3imh0ij7h"
+        "id": "epicgames_001"
       }
     ],
     "Games": [
@@ -147,60 +147,11 @@
         "icon": "https://cdn.akamai.steamstatic.com/steam/apps/1145360/library_600x900.jpg"
       },
       {
-        "id": "portal2_001",
-        "name": "Portal 2",
-        "type": "steam",
-        "path": "steam://rungameid/620",
-        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/620/library_600x900.jpg"
-      },
-      {
         "id": "stardew_001",
         "name": "Stardew Valley",
         "type": "steam",
         "path": "steam://rungameid/413150",
         "icon": "https://cdn.akamai.steamstatic.com/steam/apps/413150/library_600x900.jpg"
-      },
-      {
-        "id": "rdr2_001",
-        "name": "Red Dead Redemption 2",
-        "type": "steam",
-        "path": "steam://rungameid/1174180",
-        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/1174180/library_600x900.jpg"
-      },
-      {
-        "id": "hollowknight_001",
-        "name": "Hollow Knight",
-        "type": "steam",
-        "path": "steam://rungameid/367520",
-        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/367520/library_600x900.jpg"
-      },
-      {
-        "id": "doom_001",
-        "name": "DOOM",
-        "type": "steam",
-        "path": "steam://rungameid/379720",
-        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/379720/library_600x900.jpg"
-      },
-      {
-        "id": "valheim_001",
-        "name": "Valheim",
-        "type": "steam",
-        "path": "steam://rungameid/892970",
-        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/892970/library_600x900.jpg"
-      },
-      {
-        "id": "cities_001",
-        "name": "Cities: Skylines",
-        "type": "steam",
-        "path": "steam://rungameid/255710",
-        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/255710/library_600x900.jpg"
-      },
-      {
-        "id": "rocket_001",
-        "name": "Rocket League",
-        "type": "steam",
-        "path": "steam://rungameid/252950",
-        "icon": "https://cdn.akamai.steamstatic.com/steam/apps/252950/library_600x900.jpg"
       }
     ],
     "Applications": [],

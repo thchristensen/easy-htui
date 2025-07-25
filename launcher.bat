@@ -22,7 +22,7 @@ if not exist "logs" mkdir logs
 REM Copy default config if not present
 if not exist "config\config.json" (
     copy /Y "default_config.json" "config\config.json" >nul
-    echo ✓ Default config.json created
+    echo Default config.json created
 )
 
 REM Auto-migrate: Move old files

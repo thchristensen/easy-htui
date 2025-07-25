@@ -22,15 +22,14 @@ A customizable entertainment hub for managing your apps, games, and services. Pe
 ### Installation & Setup
 
 1. **Download or clone** this project to your desired location
-2. **Double-click `launcher.bat`** - that's it!
+2. **Double-click `launcher.bat`** to initialise Easy HTUI and install dependencies
+3. After initialisation, **Double-click `launcher.bat`** again to launch Easy HTUI
 
 The launcher will:
 - Install dependencies automatically (first run only)
 - Start the Node.js server
 - Open your browser in kiosk mode
 - Handle cleanup when you exit
-
-If the browser doesn't open (may happen after initialization), open the launcher.bat file once more.
 
 ### First Time Setup
 

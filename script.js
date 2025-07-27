@@ -21,14 +21,99 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadConfig();
         renderApps();
         setupEventListeners();
+        initializeTimeDisplay();
+        setupAdminToggle();
+        
+        // Initialize weather after config is loaded
+        await initializeWeather();
+        
         hideLoadingScreen();
     } catch (error) {
         showError('Failed to load configuration: ' + error.message);
         hideLoadingScreen();
     }
-    initializeTimeDisplay();
-    setupAdminToggle();
 });
+
+// Update cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    cleanupWeather();
+});
+
+// Show weather settings form
+function showWeatherSettings() {
+    const weatherConfig = config.weather || { enabled: false, apiKey: '', location: '', units: 'metric' };
+    
+    const formHtml = `
+        <div class="form-container">
+            <h3>Weather Settings</h3>
+            <form id="weather-settings-form">
+                <label>
+                    <input type="checkbox" name="enabled" ${weatherConfig.enabled ? 'checked' : ''}> 
+                    Enable Weather Display
+                </label>
+                <label>OpenWeather API Key: 
+                    <input type="text" name="apiKey" value="${weatherConfig.apiKey || ''}" placeholder="Get free API key from openweathermap.org">
+                    <small style="color: rgba(255,255,255,0.7); font-size: 0.8rem;">
+                        Sign up for free at <a href="https://openweathermap.org/api" target="_blank" style="color: rgba(122, 146, 199, 1);">openweathermap.org</a>
+                    </small>
+                </label>
+                <label>Location: 
+                    <input type="text" name="location" value="${weatherConfig.location || ''}" placeholder="City,Country (e.g. Manchester,GB)">
+                </label>
+                <label>Units: 
+                    <select name="units">
+                        <option value="metric" ${weatherConfig.units === 'metric' ? 'selected' : ''}>Celsius</option>
+                        <option value="imperial" ${weatherConfig.units === 'imperial' ? 'selected' : ''}>Fahrenheit</option>
+                        <option value="standard" ${weatherConfig.units === 'standard' ? 'selected' : ''}>Kelvin</option>
+                    </select>
+                </label>
+                <div class="form-buttons">
+                    <button type="submit">Save Settings</button>
+                    <button type="button" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    showFormModal(formHtml);
+    
+    document.getElementById('weather-settings-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const weatherSettings = {
+            enabled: formData.has('enabled'),
+            apiKey: formData.get('apiKey'),
+            location: formData.get('location'),
+            units: formData.get('units'),
+            updateInterval: 600000 // 10 minutes
+        };
+        
+        try {
+            // Update config
+            config.weather = weatherSettings;
+            
+            const response = await fetch('/api/config', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+            
+            if (response.ok) {
+                closeModal();
+                showMessage('Weather settings saved! Weather will update shortly.');
+                
+                // Reinitialize weather with new settings
+                cleanupWeather();
+                await initializeWeather();
+            } else {
+                const error = await response.json();
+                showError(error.error || 'Failed to save weather settings');
+            }
+        } catch (error) {
+            showError('Failed to save weather settings: ' + error.message);
+        }
+    };
+}
 
 // Setup admin toggle button
 function setupAdminToggle() {
@@ -69,6 +154,7 @@ function showAdminPanel() {
         <h3>Admin Panel</h3>
         <button onclick="showAddAppForm()">Add New App</button>
         <button onclick="showAddCategoryForm()">Add New Category</button>
+        <button onclick="showWeatherSettings()">Weather Settings</button>
         <button onclick="exportConfig()">Export Config</button>
         <button onclick="showImportConfig()">Import Config</button>
         <button onclick="cleanupLaunchers()">Cleanup Launchers</button>
@@ -1531,6 +1617,139 @@ function showBriefMessage(message) {
     }, 2000);
 }
 
+// Weather functionality
+let weatherUpdateTimer = null;
+
+// Fetch weather data from server
+async function fetchWeatherData() {
+    try {
+        const response = await fetch('/api/weather');
+        if (!response.ok) {
+            if (response.status === 404) {
+                // Weather feature disabled
+                return null;
+            }
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to fetch weather');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Weather fetch error:', error);
+        throw error;
+    }
+}
+
+// Update weather display
+function updateWeatherDisplay(weatherData) {
+    const container = document.getElementById('weather-container');
+    const icon = document.getElementById('weather-icon');
+    const temp = document.getElementById('weather-temp');
+    const desc = document.getElementById('weather-desc');
+    
+    if (!container || !icon || !temp || !desc) return;
+    
+    if (weatherData) {
+        // Set weather icon from OpenWeather
+        icon.src = `https://openweathermap.org/img/wn/${weatherData.icon}@2x.png`;
+        icon.alt = weatherData.description;
+        
+        // Set temperature with unit
+        const unit = weatherData.units === 'metric' ? '°C' : 
+                    weatherData.units === 'imperial' ? '°F' : 'K';
+        temp.textContent = `${weatherData.temperature}${unit}`;
+        
+        // Set description
+        desc.textContent = weatherData.description;
+        
+        // Show container and remove error state
+        container.style.display = 'flex';
+        container.classList.remove('error', 'loading');
+        
+        console.log(`Weather updated: ${weatherData.temperature}${unit}, ${weatherData.description}`);
+    } else {
+        // Hide weather if not available
+        container.style.display = 'none';
+    }
+}
+
+// Show weather error state
+function showWeatherError(message) {
+    const container = document.getElementById('weather-container');
+    const temp = document.getElementById('weather-temp');
+    const desc = document.getElementById('weather-desc');
+    
+    if (!container || !temp || !desc) return;
+    
+    container.style.display = 'flex';
+    container.classList.add('error');
+    container.classList.remove('loading');
+    
+    temp.textContent = '--°';
+    desc.textContent = message || 'Weather unavailable';
+}
+
+// Show weather loading state
+function showWeatherLoading() {
+    const container = document.getElementById('weather-container');
+    const temp = document.getElementById('weather-temp');
+    const desc = document.getElementById('weather-desc');
+    
+    if (!container || !temp || !desc) return;
+    
+    container.style.display = 'flex';
+    container.classList.add('loading');
+    container.classList.remove('error');
+    
+    temp.textContent = '--°';
+    desc.textContent = 'Loading...';
+}
+
+// Initialize weather updates
+async function initializeWeather() {
+    if (!config.weather || !config.weather.enabled) {
+        // Weather disabled, hide container
+        const container = document.getElementById('weather-container');
+        if (container) container.style.display = 'none';
+        return;
+    }
+    
+    showWeatherLoading();
+    
+    try {
+        const weatherData = await fetchWeatherData();
+        updateWeatherDisplay(weatherData);
+        
+        // Set up periodic updates
+        const updateInterval = config.weather.updateInterval || 600000; // Default 10 minutes
+        
+        if (weatherUpdateTimer) {
+            clearInterval(weatherUpdateTimer);
+        }
+        
+        weatherUpdateTimer = setInterval(async () => {
+            try {
+                const weatherData = await fetchWeatherData();
+                updateWeatherDisplay(weatherData);
+            } catch (error) {
+                console.error('Weather update failed:', error);
+                showWeatherError('Update failed');
+            }
+        }, updateInterval);
+        
+    } catch (error) {
+        console.error('Weather initialization failed:', error);
+        showWeatherError('Setup failed');
+    }
+}
+
+// Clean up weather timer
+function cleanupWeather() {
+    if (weatherUpdateTimer) {
+        clearInterval(weatherUpdateTimer);
+        weatherUpdateTimer = null;
+    }
+}
+
 async function refreshApps() {
     try {
         await loadConfig();
@@ -1548,6 +1767,7 @@ window.togglePathPlaceholder = togglePathPlaceholder;
 window.toggleAppTypeFields = toggleAppTypeFields;
 window.toggleColorInputs = toggleColorInputs;
 window.fetchAndPopulateSteamData = fetchAndPopulateSteamData;
+window.showWeatherSettings = showWeatherSettings;
 
 window.appLauncher = {
     config,

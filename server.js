@@ -701,6 +701,135 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
+// Weather API helper function
+async function fetchWeatherData(apiKey, location, units = 'metric') {
+    return new Promise((resolve, reject) => {
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=${units}`;
+        
+        https.get(url, (res) => {
+            let data = '';
+            
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            
+            res.on('end', () => {
+                try {
+                    const response = JSON.parse(data);
+                    
+                    if (response.cod === 200) {
+                        resolve({
+                            success: true,
+                            location: response.name,
+                            country: response.sys.country,
+                            temperature: Math.round(response.main.temp),
+                            description: response.weather[0].description,
+                            icon: response.weather[0].icon,
+                            humidity: response.main.humidity,
+                            windSpeed: response.wind.speed,
+                            units: units
+                        });
+                    } else {
+                        resolve({
+                            success: false,
+                            error: response.message || 'Weather data not available'
+                        });
+                    }
+                } catch (error) {
+                    reject(new Error('Failed to parse weather API response'));
+                }
+            });
+        }).on('error', (error) => {
+            reject(new Error('Failed to fetch weather data: ' + error.message));
+        });
+    });
+}
+
+// Weather API endpoint
+app.get('/api/weather', async (req, res) => {
+    try {
+        const config = await readConfig();
+        
+        if (!config.weather || !config.weather.enabled) {
+            return res.status(404).json({ error: 'Weather feature is disabled' });
+        }
+        
+        if (!config.weather.apiKey || config.weather.apiKey === 'YOUR_OPENWEATHER_API_KEY') {
+            return res.status(400).json({ error: 'Weather API key not configured' });
+        }
+        
+        if (!config.weather.location) {
+            return res.status(400).json({ error: 'Weather location not configured' });
+        }
+        
+        await logMessage(`Fetching weather data for: ${config.weather.location}`, 'info');
+        const weatherData = await fetchWeatherData(
+            config.weather.apiKey, 
+            config.weather.location, 
+            config.weather.units || 'metric'
+        );
+        
+        if (weatherData.success) {
+            await logMessage(`Weather data retrieved for ${weatherData.location}, ${weatherData.country}`, 'info');
+            res.json(weatherData);
+        } else {
+            res.status(404).json({ error: weatherData.error });
+        }
+    } catch (error) {
+        await logMessage(`Weather API error: ${error.message}`, 'error');
+        res.status(500).json({ error: 'Failed to fetch weather data' });
+    }
+});
+
+app.get('/api/weather/test', async (req, res) => {
+    try {
+        const config = await readConfig();
+        
+        const testResult = {
+            timestamp: new Date().toISOString(),
+            configExists: !!config.weather,
+            weatherEnabled: config.weather?.enabled || false,
+            hasApiKey: !!(config.weather?.apiKey && config.weather.apiKey !== 'YOUR_OPENWEATHER_API_KEY'),
+            apiKeyLength: config.weather?.apiKey?.length || 0,
+            location: config.weather?.location || 'Not set',
+            units: config.weather?.units || 'Not set',
+            updateInterval: config.weather?.updateInterval || 'Not set'
+        };
+        
+        console.log('Weather test result:', testResult);
+        
+        // If everything looks good, try a test API call
+        if (testResult.weatherEnabled && testResult.hasApiKey && config.weather.location) {
+            try {
+                console.log('Attempting test weather API call...');
+                const weatherData = await fetchWeatherData(
+                    config.weather.apiKey,
+                    config.weather.location,
+                    config.weather.units || 'metric'
+                );
+                testResult.apiCallResult = weatherData.success ? 'SUCCESS' : 'FAILED';
+                testResult.apiError = weatherData.success ? null : weatherData.error;
+                testResult.weatherData = weatherData.success ? weatherData : null;
+            } catch (apiError) {
+                testResult.apiCallResult = 'ERROR';
+                testResult.apiError = apiError.message;
+            }
+        } else {
+            testResult.apiCallResult = 'SKIPPED';
+            testResult.apiError = 'Missing required configuration';
+        }
+        
+        res.json(testResult);
+    } catch (error) {
+        console.error('Weather test endpoint error:', error);
+        res.status(500).json({ 
+            error: 'Test failed', 
+            message: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // Initialize and start server
 async function startServer() {
     try {

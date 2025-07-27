@@ -59,7 +59,7 @@ echo Server running at http://localhost:3000
 
 REM Launch browser
 echo Opening browser...
-start chrome --kiosk --disable-web-security --allow-running-insecure-content --disable-features=TranslateUI --disable-extensions-except="" --app=http://localhost:3000
+start chrome --kiosk --disable-web-security --allow-running-insecure-content --disable-features=TranslateUI --app=http://localhost:3000
 
 echo.
 echo  =============================================

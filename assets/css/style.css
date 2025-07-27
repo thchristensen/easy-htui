@@ -65,7 +65,9 @@ header {
 
 .time-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
   font-size: 1.2rem;
   color: rgb(122, 146, 199);
 }
@@ -701,6 +703,14 @@ body.navigation-mode * {
   border-color: rgba(122, 146, 199, 0.8);
 }
 
+.tools{
+      display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
 /* Admin Panel */
 .admin-panel {
   position: fixed;
@@ -1054,4 +1064,73 @@ body.navigation-mode * {
   flex-direction: column;
   align-items: flex-end;
   gap: 10px;
+}
+
+
+/* Weather Styles */
+.weather-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  
+  transition: all 0.3s ease;
+  cursor:default;
+}
+
+.weather-container:hover {
+  background: rgba(122, 146, 199, 0.15);
+  border-color: rgba(122, 146, 199, 0.4);
+}
+
+.weather-icon {
+  
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.weather-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weather-temp {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: rgba(122, 146, 199, 1);
+}
+
+.weather-desc {
+  font-size: 0.8rem;
+  color: rgba(122, 146, 199, 0.8);
+  text-transform: capitalize;
+  font-weight: 300;
+}
+
+/* Weather loading state */
+.weather-container.loading .weather-icon {
+  opacity: 0.5;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* Weather error state */
+.weather-container.error {
+  background: rgba(211, 47, 47, 0.1);
+  border-color: rgba(211, 47, 47, 0.3);
+}
+
+.weather-container.error .weather-temp {
+  color: rgba(211, 47, 47, 0.8);
+}
+
+.weather-container.error .weather-desc {
+  color: rgba(211, 47, 47, 0.6);
 }

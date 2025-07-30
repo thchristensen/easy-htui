@@ -1,4 +1,4 @@
-![screenshot](https://imgur.com/a/5nSCXE8 "Easy HTUI Screenshot")
+![screenshot](https://i.imgur.com/xEW590b.png "Easy HTUI Screenshot")
 
 # Easy HTUI
 

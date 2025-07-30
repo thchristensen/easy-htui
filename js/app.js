@@ -466,6 +466,10 @@ let app;
 document.addEventListener('DOMContentLoaded', () => {
     app = new EasyHTUI();
     app.init();
+    
+    // Export for global access AFTER app is created
+    window.app = app;
+    window.AppState = AppState;
 });
 
 // Clean up weather on page unload
@@ -474,10 +478,6 @@ window.addEventListener('beforeunload', () => {
         app.weather.cleanup();
     }
 });
-
-// Export for global access
-window.app = app;
-window.AppState = AppState;
 
 // Legacy global functions for backwards compatibility
 window.closeModal = () => app?.admin.closeModal();

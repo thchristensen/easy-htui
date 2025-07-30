@@ -705,7 +705,7 @@ body.navigation-mode * {
 
 .tools{
       display: flex;
-    flex-direction: row;
+    flex-direction: row-reverse;
     align-items: center;
     justify-content: space-between;
     width: 100%;

@@ -1078,11 +1078,6 @@ body.navigation-mode * {
   cursor:default;
 }
 
-.weather-container:hover {
-  background: rgba(122, 146, 199, 0.15);
-  border-color: rgba(122, 146, 199, 0.4);
-}
-
 .weather-icon {
   
   width: 40px;

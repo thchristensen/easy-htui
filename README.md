@@ -1,6 +1,8 @@
+![screenshot](https://i.imgur.com/xEW590b.png "Easy HTUI Screenshot")
+
 # Easy HTUI
 
-A customizable entertainment hub for managing your apps, games, and services. Perfect for TV setups, kiosks, or any environment where you want a controller-friendly interface to launch your entertainment.
+A customizable browser based entertainment hub for managing your apps, games, and services. Perfect for TV setups, kiosks, or any environment where you want a controller-friendly interface to launch your entertainment.
 
 ## Features
 

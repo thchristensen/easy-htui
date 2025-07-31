@@ -10,6 +10,7 @@ html {
   background-attachment: fixed;
 }
 
+
 body {
   font-family: "DM Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #ffffff;
@@ -20,6 +21,7 @@ body {
     rgba(46, 81, 185, 0.4) 0%,
     rgba(46, 81, 185, 0) 800px
   );
+  scrollbar-gutter: stable;
 }
 
 body::before {
@@ -39,6 +41,18 @@ body::before {
 img {
   max-width: 100%;
   height: auto;
+}
+
+.modal-open {
+  overflow: hidden;
+  padding-right:8px;
+  position:relative;
+}
+
+.modal-open .admin-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 28px;
 }
 
 .container {
@@ -122,10 +136,14 @@ main {
   position: relative; /* Important for arrow positioning */
 }
 
+.category-header{
+  position:relative;
+}
+
 .category-title {
   font-size: 1.5rem;
   font-weight: 400;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   color: rgba(122, 146, 199, 0.8);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   text-transform: uppercase;
@@ -134,6 +152,7 @@ main {
   display: flex;
   flex-direction: row;
   align-items: center;
+
 }
 
 .category-title::before {
@@ -155,12 +174,19 @@ main {
   .category-title {
     color: rgba(255, 255, 255, 1);
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+
   }
   .category-title::before {
     width: 35px;
     margin-right: 10px;
     opacity: 1;
   }
+}
+
+.category-admin-controls {
+  position: absolute;
+  display: flex;
+  gap: 10px;
 }
 
 .apps-grid {
@@ -375,8 +401,6 @@ main {
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.8rem;
-  margin-left: auto;
-  margin-right: 10px;
   opacity: 0;
   transition: all 0.3s ease;
 }
@@ -416,7 +440,7 @@ main {
 .app-card:hover,
 .app-card:focus,
 .app-card.focused {
-  outline: 4px solid rgba(122, 146, 199, 0.8) !important;
+  outline: 4px solid rgba(122, 146, 199, 0.8);
   outline-offset: 4px;
   background: rgba(255, 255, 255, 0.25);
   transform: translateY(-3px) scale(1.01);
@@ -649,11 +673,6 @@ body.navigation-mode * {
   background: rgba(122, 146, 199, 0.4);
 }
 
-/* Remove default focus outline */
-.app-card:focus {
-  outline: none;
-}
-
 /* Ensure icons are not selectable */
 .app-icon,
 .app-icon * {
@@ -763,6 +782,7 @@ body.navigation-mode * {
   justify-content: flex-end;
   height:100%;
   width:100%;
+  pointer-events:none;
 }
 
 .admin-mode .app-card:hover .admin-controls,
@@ -780,7 +800,8 @@ body.navigation-mode * {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 60ms ease;
+  pointer-events:all;
 }
 
 /* Move buttons - positioned above the card */
@@ -843,9 +864,10 @@ body.navigation-mode * {
 /* Category Header */
 .category-header {
   display: flex;
+  gap:20px;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
+  justify-content: flex-start;
+  margin-bottom: 30px;
 }
 
 .delete-category-btn {
@@ -1048,15 +1070,21 @@ body.navigation-mode * {
 
 /* Admin Mode Indicator */
 .admin-mode {
-  border: 2px solid rgba(255, 193, 7, 0.5);
+  outline: 2px solid rgba(255, 193, 7, 0.5);
+  outline-offset:-2px;
 }
 
 .admin-mode .app-card {
   cursor: pointer;
+  transition:none;
 }
 
 .admin-mode .app-card:hover {
-  border: 2px solid rgba(255, 193, 7, 0.8);
+  outline: 2px solid rgba(255, 193, 7, 0.8);
+}
+
+.admin-mode .app-card:focus, .admin-mode .app-card:hover {
+  transform:none;
 }
 
 .header-right {

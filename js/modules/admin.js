@@ -70,6 +70,16 @@ export class AdminManager {
         categoryTitle.textContent = categoryName;
         
         categoryHeader.appendChild(categoryTitle);
+
+        const categoryAdminControls = document.createElement('div');
+        categoryAdminControls.className = 'category-admin-controls';
+        
+        categoryHeader.appendChild(categoryAdminControls);
+
+        requestAnimationFrame(() => {
+            const width = categoryTitle.offsetWidth;
+            categoryAdminControls.style.left = width + 60 + 'px';
+        });
         
         if (AppState.isAdminMode) {
             // Add style selector dropdown
@@ -89,7 +99,7 @@ export class AdminManager {
                 e.stopPropagation();
                 this.changeCategoryStyle(categoryName, e.target.value);
             };
-            categoryHeader.appendChild(styleSelector);
+            categoryAdminControls.appendChild(styleSelector);
             
             const deleteCategory = document.createElement('button');
             deleteCategory.textContent = '×';
@@ -98,8 +108,10 @@ export class AdminManager {
                 e.stopPropagation();
                 this.deleteCategory(categoryName);
             };
-            categoryHeader.appendChild(deleteCategory);
+            categoryAdminControls.appendChild(deleteCategory);
         }
+
+        
         
         return categoryHeader;
     }
@@ -761,11 +773,11 @@ export class AdminManager {
         modal.innerHTML = `<div class="modal-content">${html}</div>`;
         
         document.body.appendChild(modal);
+
+        // Disable scrolling on body
+        document.body.classList.add('modal-open');
+
         
-        // Close modal when clicking outside
-        modal.onclick = (e) => {
-            if (e.target === modal) this.closeModal();
-        };
     }
 
     closeModal() {
@@ -774,5 +786,7 @@ export class AdminManager {
         
         const errorModal = document.getElementById('error-modal');
         if (errorModal) errorModal.classList.add('hidden');
+
+        document.body.classList.remove('modal-open');
     }
 }

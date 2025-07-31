@@ -88,7 +88,6 @@ export class WeatherManager {
             this.container.style.display = 'flex';
             this.container.classList.remove('error', 'loading');
             
-            console.log(`Weather updated: ${weatherData.temperature}${unit}, ${weatherData.description}`);
         } else {
             // Hide weather if not available
             this.container.style.display = 'none';

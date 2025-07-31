@@ -762,7 +762,7 @@ app.get('/api/weather', async (req, res) => {
             return res.status(400).json({ error: 'Weather location not configured' });
         }
         
-        await logMessage(`Fetching weather data for: ${config.weather.location}`, 'info');
+
         const weatherData = await fetchWeatherData(
             config.weather.apiKey, 
             config.weather.location, 
@@ -770,7 +770,6 @@ app.get('/api/weather', async (req, res) => {
         );
         
         if (weatherData.success) {
-            await logMessage(`Weather data retrieved for ${weatherData.location}, ${weatherData.country}`, 'info');
             res.json(weatherData);
         } else {
             res.status(404).json({ error: weatherData.error });

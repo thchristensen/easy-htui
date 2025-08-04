@@ -76,21 +76,46 @@ export class NavigationManager {
         // If element is already visible, don't scroll
     }
 
-    // Center an element vertically in the viewport
     centerElementInView(element) {
-        if (this.currentScrollAnimation) {
-            cancelAnimationFrame(this.currentScrollAnimation);
-            this.currentScrollAnimation = null;
-        }
-        
+    if (this.currentScrollAnimation) {
+        cancelAnimationFrame(this.currentScrollAnimation);
+        this.currentScrollAnimation = null;
+    }
+    
+    // Check if this element is in the global top row
+    if (this.isInGlobalTopRow(element)) {
+        // For top row elements, always scroll to top of page
+        this.smoothScrollTo(0);
+    } else {
+        // For all other elements, center them
         const elementRect = element.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
-        
         const elementCenter = elementRect.top + elementRect.height / 2;
         const targetScrollTop = window.pageYOffset + elementCenter - (viewportHeight / 2);
-        
         this.smoothScrollTo(targetScrollTop);
     }
+}
+
+// Helper to check if element is in the global top row across all categories
+isInGlobalTopRow(element) {
+    // Get the absolute top position of this element
+    const elementRect = element.getBoundingClientRect();
+    const elementTopAbsolute = window.pageYOffset + elementRect.top;
+    
+    // Get all app cards across all categories
+    const allCards = Array.from(document.querySelectorAll('.app-card'));
+    if (allCards.length === 0) return false;
+    
+    // Find the minimum absolute top position across all cards
+    const minTopAbsolute = Math.min(...allCards.map(card => {
+        const rect = card.getBoundingClientRect();
+        return window.pageYOffset + rect.top;
+    }));
+    
+    // Check if our element is in the top row (within threshold)
+    const rowThreshold = 30; // pixels
+    return Math.abs(elementTopAbsolute - minTopAbsolute) <= rowThreshold;
+}
 
     // Smooth scroll to a target position
     smoothScrollTo(targetScrollTop) {
@@ -233,14 +258,14 @@ export class NavigationManager {
             }
         }
         
-        // At the very edges, wrap around completely
-        if (direction === 'right') {
-            // Wrap to very first element
-            return { index: 0, sameRow: false };
-        } else if (direction === 'left') {
-            // Wrap to very last element
-            return { index: this.focusableElements.length - 1, sameRow: false };
-        }
+        // At the very edges, wrap around completely: DISABLED for now
+        // if (direction === 'right') {
+        //     // Wrap to very first element
+        //     return { index: 0, sameRow: false };
+        // } else if (direction === 'left') {
+        //     // Wrap to very last element
+        //     return { index: this.focusableElements.length - 1, sameRow: false };
+        // }
         
         return { index: -1, sameRow: false };
     }

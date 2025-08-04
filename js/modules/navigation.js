@@ -9,6 +9,8 @@ export class NavigationManager {
         this.currentScrollAnimation = null;
         this.gamepadIndex = -1;
         this.lastButtonStates = {};
+        this.navigationDelay = 150; // ms
+        this.lastNavigationTime = 0;
     }
 
     // Update list of focusable elements
@@ -92,6 +94,10 @@ export class NavigationManager {
     // Navigate using proper grid position calculation
     navigateGrid(direction) {
         if (this.focusableElements.length === 0) return;
+
+        const now = Date.now();
+        if (now - this.lastNavigationTime < this.navigationDelay) return;
+        this.lastNavigationTime = now;
 
         const currentElement = this.focusableElements[this.currentFocusIndex];
         const currentCategory = currentElement.closest('.category');

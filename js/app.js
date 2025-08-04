@@ -268,9 +268,20 @@ class EasyHTUI {
                     break;
                     
                 case 'steam':
+                    if (app.path) {
+                        window.location.href = app.path;
+                    } else {
+                        throw new Error('No Steam path specified');
+                    }
+                    break;
+                    
                 case 'epic':
-                default:
-                    throw new Error(`Unknown app type: ${app.type}`);
+                    if (app.path) {
+                        window.location.href = app.path;
+                    } else {
+                        throw new Error('No Epic path specified');
+                    }
+                    break;
             }
         } catch (error) {
             console.error('Error launching app:', error);

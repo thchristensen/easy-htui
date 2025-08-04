@@ -9,7 +9,7 @@ export class NavigationManager {
         this.currentScrollAnimation = null;
         this.gamepadIndex = -1;
         this.lastButtonStates = {};
-        this.navigationDelay = 150; // ms
+        this.navigationDelay = 75; // ms
         this.lastNavigationTime = 0;
     }
 
@@ -24,8 +24,8 @@ export class NavigationManager {
         }
     }
 
-    // Focus on specific element by index with centered scrolling
-    focusElement(index) {
+    // Focus on specific element by index with conditional scrolling
+    focusElement(index, shouldCenter = true) {
         if (index < 0 || index >= this.focusableElements.length) return;
         
         // Remove focus from current element
@@ -47,8 +47,33 @@ export class NavigationManager {
             if (category) {
                 category.classList.add('focused-category');
             }
-            this.centerElementInView(element);
+            
+            if (shouldCenter) {
+                this.centerElementInView(element);
+            } else {
+                this.ensureElementVisible(element);
+            }
         }
+    }
+
+    // Ensure element is visible without aggressive centering
+    ensureElementVisible(element) {
+        const elementRect = element.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const headerHeight = 200; // Approximate header height
+        const footerHeight = 100; // Buffer for footer
+        
+        // Only scroll if the element is significantly out of view
+        if (elementRect.top < headerHeight) {
+            // Element is above the visible area
+            const targetScrollTop = window.pageYOffset + elementRect.top - headerHeight - 20;
+            this.smoothScrollTo(targetScrollTop);
+        } else if (elementRect.bottom > viewportHeight - footerHeight) {
+            // Element is below the visible area
+            const targetScrollTop = window.pageYOffset + elementRect.bottom - viewportHeight + footerHeight + 20;
+            this.smoothScrollTo(targetScrollTop);
+        }
+        // If element is already visible, don't scroll
     }
 
     // Center an element vertically in the viewport
@@ -64,11 +89,22 @@ export class NavigationManager {
         const elementCenter = elementRect.top + elementRect.height / 2;
         const targetScrollTop = window.pageYOffset + elementCenter - (viewportHeight / 2);
         
+        this.smoothScrollTo(targetScrollTop);
+    }
+
+    // Smooth scroll to a target position
+    smoothScrollTo(targetScrollTop) {
+        if (this.currentScrollAnimation) {
+            cancelAnimationFrame(this.currentScrollAnimation);
+            this.currentScrollAnimation = null;
+        }
+
         const startScrollTop = window.pageYOffset;
         const distance = targetScrollTop - startScrollTop;
         
         if (Math.abs(distance) < 20) return;
         
+        const viewportHeight = window.innerHeight;
         const duration = 1000 * Math.min(1, Math.abs(distance) / viewportHeight);
         const startTime = performance.now();
         
@@ -91,6 +127,124 @@ export class NavigationManager {
         this.currentScrollAnimation = requestAnimationFrame(animateScroll);
     }
 
+    // Check if two elements are on the same visual row
+    areElementsOnSameRow(element1, element2, tolerance = 20) {
+        const rect1 = element1.getBoundingClientRect();
+        const rect2 = element2.getBoundingClientRect();
+        
+        // Consider elements on the same row if their vertical centers are within tolerance
+        const center1Y = rect1.top + rect1.height / 2;
+        const center2Y = rect2.top + rect2.height / 2;
+        
+        return Math.abs(center1Y - center2Y) <= tolerance;
+    }
+
+    // Find the best horizontal neighbor with cross-category navigation
+    findHorizontalNeighbor(direction) {
+        if (this.focusableElements.length === 0) return { index: -1, sameRow: false };
+
+        const currentElement = this.focusableElements[this.currentFocusIndex];
+        const currentCategory = currentElement.closest('.category');
+        if (!currentCategory) return { index: -1, sameRow: false };
+        
+        // Get all categories and current category info
+        const allCategories = Array.from(document.querySelectorAll('.category'));
+        const currentCategoryIndex = allCategories.indexOf(currentCategory);
+        
+        // Get all elements in the same category
+        const categoryElements = this.focusableElements.filter(el => 
+            el.closest('.category') === currentCategory
+        );
+        
+        const currentIndexInCategory = categoryElements.indexOf(currentElement);
+        if (currentIndexInCategory === -1) return { index: -1, sameRow: false };
+        
+        const currentRect = currentElement.getBoundingClientRect();
+        const currentCenterY = currentRect.top + currentRect.height / 2;
+        const currentCenterX = currentRect.left + currentRect.width / 2;
+        
+        // First, try to find elements on the same row in the correct direction within current category
+        let sameRowCandidates = [];
+        
+        categoryElements.forEach((element, categoryIndex) => {
+            if (element === currentElement) return;
+            
+            const rect = element.getBoundingClientRect();
+            const centerY = rect.top + rect.height / 2;
+            const centerX = rect.left + rect.width / 2;
+            
+            const isOnSameRow = Math.abs(centerY - currentCenterY) <= 20;
+            const isInCorrectDirection = (direction === 'left' && centerX < currentCenterX) || 
+                                       (direction === 'right' && centerX > currentCenterX);
+            
+            if (isOnSameRow && isInCorrectDirection) {
+                sameRowCandidates.push({
+                    element,
+                    index: this.focusableElements.indexOf(element),
+                    distance: Math.abs(centerX - currentCenterX)
+                });
+            }
+        });
+        
+        // If we have same-row candidates in current category, pick the closest
+        if (sameRowCandidates.length > 0) {
+            const closest = sameRowCandidates.reduce((best, current) => 
+                current.distance < best.distance ? current : best
+            );
+            return { index: closest.index, sameRow: true };
+        }
+        
+        // No same-row candidates in current category, try adjacent within category first
+        let targetIndexInCategory = -1;
+        if (direction === 'left' && currentIndexInCategory > 0) {
+            targetIndexInCategory = currentIndexInCategory - 1;
+        } else if (direction === 'right' && currentIndexInCategory < categoryElements.length - 1) {
+            targetIndexInCategory = currentIndexInCategory + 1;
+        }
+        
+        // If we found an adjacent element in the same category, use it
+        if (targetIndexInCategory !== -1) {
+            const targetElement = categoryElements[targetIndexInCategory];
+            const targetIndex = this.focusableElements.indexOf(targetElement);
+            const isOnSameRow = this.areElementsOnSameRow(currentElement, targetElement);
+            return { index: targetIndex, sameRow: isOnSameRow };
+        }
+        
+        // No adjacent element in current category, try next/previous category
+        if (direction === 'right' && currentCategoryIndex < allCategories.length - 1) {
+            // Move to first element of next category
+            const nextCategory = allCategories[currentCategoryIndex + 1];
+            const nextCategoryElements = this.focusableElements.filter(el => 
+                el.closest('.category') === nextCategory
+            );
+            if (nextCategoryElements.length > 0) {
+                const targetIndex = this.focusableElements.indexOf(nextCategoryElements[0]);
+                return { index: targetIndex, sameRow: false };
+            }
+        } else if (direction === 'left' && currentCategoryIndex > 0) {
+            // Move to last element of previous category
+            const prevCategory = allCategories[currentCategoryIndex - 1];
+            const prevCategoryElements = this.focusableElements.filter(el => 
+                el.closest('.category') === prevCategory
+            );
+            if (prevCategoryElements.length > 0) {
+                const targetIndex = this.focusableElements.indexOf(prevCategoryElements[prevCategoryElements.length - 1]);
+                return { index: targetIndex, sameRow: false };
+            }
+        }
+        
+        // At the very edges, wrap around completely
+        if (direction === 'right') {
+            // Wrap to very first element
+            return { index: 0, sameRow: false };
+        } else if (direction === 'left') {
+            // Wrap to very last element
+            return { index: this.focusableElements.length - 1, sameRow: false };
+        }
+        
+        return { index: -1, sameRow: false };
+    }
+
     // Navigate using proper grid position calculation
     navigateGrid(direction) {
         if (this.focusableElements.length === 0) return;
@@ -103,6 +257,54 @@ export class NavigationManager {
         const currentCategory = currentElement.closest('.category');
         if (!currentCategory) return;
 
+        let bestIndex = -1;
+
+        if (direction === 'left' || direction === 'right') {
+            // Use improved horizontal navigation with row wrapping
+            const result = this.findHorizontalNeighbor(direction);
+            
+            // If no target found, don't move
+            if (result.index === -1) return;
+            
+            const bestIndex = result.index;
+            const sameRow = result.sameRow;
+            
+            // Focus with appropriate scrolling based on row change
+            if (bestIndex !== this.currentFocusIndex) {
+                const oldIndex = this.currentFocusIndex;
+                this.currentFocusIndex = bestIndex;
+                const element = this.focusableElements[this.currentFocusIndex];
+                
+                // Remove focus from old element
+                if (this.focusableElements[oldIndex]) {
+                    this.focusableElements[oldIndex].classList.remove('focused');
+                    const oldCategory = this.focusableElements[oldIndex].closest('.category');
+                    if (oldCategory) {
+                        oldCategory.classList.remove('focused-category');
+                    }
+                }
+                
+                // Add focus to new element
+                element.focus();
+                element.classList.add('focused');
+                const category = element.closest('.category');
+                if (category) {
+                    category.classList.add('focused-category');
+                }
+                
+                // Choose scrolling behavior based on whether we're on the same row
+                if (sameRow) {
+                    // Minimal scrolling for same-row navigation
+                    this.ensureElementVisible(element);
+                } else {
+                    // Center for row wrapping to make the transition clear
+                    this.centerElementInView(element);
+                }
+            }
+            return;
+        }
+
+        // Vertical navigation (existing logic)
         const categories = Array.from(document.querySelectorAll('.category'));
         const currentCategoryIndex = categories.indexOf(currentCategory);
 
@@ -122,43 +324,35 @@ export class NavigationManager {
 
         let bestElement = null;
         let bestDistance = Infinity;
-        let bestIndex = -1;
 
-        if (direction === 'up' || direction === 'down') {
-            // Vertical navigation with category restrictions
-            this.focusableElements.forEach((element, index) => {
-                if (index === this.currentFocusIndex) return;
+        this.focusableElements.forEach((element, index) => {
+            if (index === this.currentFocusIndex) return;
 
-                const category = element.closest('.category');
-                if (!allowedCategories.includes(category)) return;
+            const category = element.closest('.category');
+            if (!allowedCategories.includes(category)) return;
 
-                const rect = element.getBoundingClientRect();
-                const center = {
-                    x: rect.left + rect.width / 2,
-                    y: rect.top + rect.height / 2
-                };
+            const rect = element.getBoundingClientRect();
+            const center = {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
 
-                if (direction === 'up' && center.y >= currentCenter.y - 10) return;
-                if (direction === 'down' && center.y <= currentCenter.y + 10) return;
+            if (direction === 'up' && center.y >= currentCenter.y - 10) return;
+            if (direction === 'down' && center.y <= currentCenter.y + 10) return;
 
-                const horizontalDistance = Math.abs(center.x - currentCenter.x);
-                const verticalDistance = Math.abs(center.y - currentCenter.y);
-                const distance = horizontalDistance * 2 + verticalDistance;
+            const horizontalDistance = Math.abs(center.x - currentCenter.x);
+            const verticalDistance = Math.abs(center.y - currentCenter.y);
+            const distance = horizontalDistance * 2 + verticalDistance;
 
-                if (distance < bestDistance) {
-                    bestDistance = distance;
-                    bestElement = element;
-                    bestIndex = index;
-                }
-            });
-        } else if (direction === 'left') {
-            bestIndex = this.currentFocusIndex > 0 ? this.currentFocusIndex - 1 : this.currentFocusIndex;
-        } else if (direction === 'right') {
-            bestIndex = this.currentFocusIndex < this.focusableElements.length - 1 ? this.currentFocusIndex + 1 : this.currentFocusIndex;
-        }
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestElement = element;
+                bestIndex = index;
+            }
+        });
 
         if (bestIndex !== -1 && bestIndex !== this.currentFocusIndex) {
-            this.focusElement(bestIndex);
+            this.focusElement(bestIndex, true); // Center for vertical navigation
         }
     }
 

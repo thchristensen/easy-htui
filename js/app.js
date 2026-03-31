@@ -78,18 +78,74 @@ class EasyHTUI {
     // Render all apps in categories
     renderApps(appsToRender = null) {
         this.mainContent.innerHTML = '';
-        
+
+        // Show recently used row only on normal (unfiltered, non-admin) render
+        if (appsToRender === null && !AppState.isAdminMode) {
+            this.renderRecentSection();
+        }
+
         const appsData = appsToRender || AppState.config.categories;
-        
+
         for (const [categoryName, apps] of Object.entries(appsData)) {
             if (apps.length === 0 && !AppState.isAdminMode) continue;
-            
+
             const categoryDiv = this.createCategoryElement(categoryName, apps);
             this.mainContent.appendChild(categoryDiv);
         }
-        
+
         // Update focusable elements after rendering
         this.navigation.updateFocusableElements();
+    }
+
+    // Render the "Recently Used" pseudo-category
+    renderRecentSection() {
+        const recentApps = this.loadRecentApps();
+        if (recentApps.length === 0) return;
+
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'category';
+        categoryDiv.setAttribute('data-category', 'Recently Used');
+        categoryDiv.setAttribute('data-recent', 'true');
+
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        const title = document.createElement('h2');
+        title.className = 'category-title';
+        title.textContent = 'Recently Used';
+        header.appendChild(title);
+
+        const appsGrid = this.createAppsGrid(recentApps, 'Recently Used');
+
+        categoryDiv.appendChild(header);
+        categoryDiv.appendChild(appsGrid);
+        this.mainContent.appendChild(categoryDiv);
+    }
+
+    // Load recently used apps from localStorage, filtering out deleted apps
+    loadRecentApps() {
+        try {
+            const stored = JSON.parse(localStorage.getItem('easyhtui_recent') || '[]');
+            const validIds = new Set(AppState.allApps.map(a => a.id));
+            return stored.filter(a => validIds.has(a.id));
+        } catch {
+            return [];
+        }
+    }
+
+    // Record an app launch in recently used history
+    addToRecent(app) {
+        try {
+            const stored = JSON.parse(localStorage.getItem('easyhtui_recent') || '[]');
+            const filtered = stored.filter(a => a.id !== app.id);
+            filtered.unshift({
+                id: app.id, name: app.name, icon: app.icon,
+                type: app.type, url: app.url, path: app.path,
+                color1: app.color1, color2: app.color2
+            });
+            localStorage.setItem('easyhtui_recent', JSON.stringify(filtered.slice(0, 8)));
+        } catch {
+            // localStorage unavailable — silently skip
+        }
     }
 
     // Create category element
@@ -251,6 +307,7 @@ class EasyHTUI {
 
     // Launch application based on type
     async launchApp(app) {
+        this.addToRecent(app);
         try {
             console.log('Launching app:', app);
             

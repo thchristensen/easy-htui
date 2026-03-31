@@ -592,4 +592,22 @@ isInGlobalTopRow(element) {
             this.lastButtonStates.b = false;
         }
     }
+
+    setupMouseMoveExit() {
+        let lastMouseX = 0, lastMouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            if (!AppState.isNavigationMode) {
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                return;
+            }
+            const dx = Math.abs(e.clientX - lastMouseX);
+            const dy = Math.abs(e.clientY - lastMouseY);
+            if (dx > 8 || dy > 8) {
+                this.exitNavigationMode();
+            }
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+        });
+    }
 }

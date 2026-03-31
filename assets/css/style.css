@@ -610,6 +610,24 @@ body.navigation-mode * {
   pointer-events: none;
 }
 
+body.navigation-mode::after {
+  content: '⌨  Keyboard mode';
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(122, 146, 199, 0.15);
+  color: rgba(122, 146, 199, 0.8);
+  border: 1px solid rgba(122, 146, 199, 0.25);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  z-index: 9999;
+  backdrop-filter: blur(8px);
+  animation: fadeInUp 0.2s ease;
+}
+
 .admin-mode .app-card {
   transition: none !important;
   transform: none !important;
@@ -645,15 +663,6 @@ body.navigation-mode * {
     font-size: 2rem;
   }
 
-  .navigation-mode::before {
-    font-size: 0.8rem;
-    padding: 8px 16px;
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
-    transform: none;
-    text-align: center;
-  }
 }
 
 /* Scrollbar styling */

@@ -348,6 +348,7 @@ class EasyHTUI {
         // Navigation and keyboard events
         this.navigation.setupKeyboardEvents();
         this.navigation.setupGamepadSupport();
+        this.navigation.setupMouseMoveExit();
         
         // Click to exit navigation mode
         document.addEventListener('click', (e) => {

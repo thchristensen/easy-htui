@@ -43,7 +43,16 @@ function waitForPort(port, retries = 30) {
 function toggleWindow() {
     if (!mainWindow) return;
     if (mainWindow.isVisible() && mainWindow.isFocused()) {
-        mainWindow.hide();
+        const currentUrl = mainWindow.webContents.getURL();
+        const port = process.env.PORT;
+        
+        // If we are currently in an app (not on the dashboard), go to dashboard instead of hiding
+        if (port && !currentUrl.startsWith(`http://localhost:${port}`)) {
+            mainWindow.loadURL(`http://localhost:${port}`);
+        } else {
+            // We are on the dashboard, so hide the app
+            mainWindow.hide();
+        }
     } else {
         mainWindow.show();
         mainWindow.focus();
@@ -112,21 +121,41 @@ if (!gotTheLock) {
             mainWindow.loadURL(`http://localhost:${port}`);
             mainWindow.maximize();
 
-            // Route website/steam/epic URLs to the system — never navigate away from the launcher
+            // Route steam/epic URLs to the system, but allow web apps to load in the launcher
             mainWindow.webContents.on('will-navigate', (event, url) => {
                 if (!url.startsWith(`http://localhost:${port}`)) {
+                    if (url.startsWith('http://') || url.startsWith('https://')) {
+                        // Allow web navigation to happen within the Electron app
+                        return;
+                    }
                     event.preventDefault();
                     shell.openExternal(url);
                 }
             });
             mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    // If a link tries to open in a new window (target="_blank"), 
+                    // force it to open in the current window instead.
+                    mainWindow.loadURL(url);
+                    return { action: 'deny' };
+                }
                 shell.openExternal(url);
                 return { action: 'deny' };
             });
 
-            // F12 → DevTools
-            mainWindow.webContents.on('before-input-event', (_e, input) => {
-                if (input.key === 'F12') mainWindow.webContents.openDevTools();
+            // Input interception (F12 for DevTools, Escape/Back to return to dashboard)
+            mainWindow.webContents.on('before-input-event', (event, input) => {
+                if (input.key === 'F12') {
+                    mainWindow.webContents.openDevTools();
+                }
+                
+                if (input.type === 'keyDown' && (input.key === 'Escape' || input.key === 'BrowserBack' || input.key === 'BrowserHome')) {
+                    const currentUrl = mainWindow.webContents.getURL();
+                    if (!currentUrl.startsWith(`http://localhost:${port}`) || input.key === 'BrowserHome') {
+                        event.preventDefault();
+                        mainWindow.loadURL(`http://localhost:${port}`);
+                    }
+                }
             });
 
             // Closing the window hides to tray instead of quitting

@@ -18,6 +18,7 @@ const staticDir = __dirname.includes('app.asar') ? __dirname.replace('app.asar',
 const CONFIG_FILE  = path.join(DATA_DIR, 'config', 'config.json');
 const BACKUP_DIR   = path.join(DATA_DIR, 'config', 'backups');
 const ASSETS_DIR   = path.join(staticDir, 'assets');   // read-only, stays with the app
+const USER_ASSETS_DIR = path.join(DATA_DIR, 'user_assets'); // writable user assets
 const LOGS_DIR     = path.join(DATA_DIR, 'logs');
 const LAUNCHERS_DIR = path.join(DATA_DIR, 'launchers');
 
@@ -30,8 +31,14 @@ app.use(express.static(staticDir, {
     index: false
 }));
 
-// Serve assets with proper caching
+// Serve app built-in assets with proper caching
 app.use('/assets', express.static(ASSETS_DIR, {
+    maxAge: '1d',
+    etag: true
+}));
+
+// Serve user-provided assets (icons, backgrounds)
+app.use('/user-assets', express.static(USER_ASSETS_DIR, {
     maxAge: '1d',
     etag: true
 }));
@@ -90,6 +97,7 @@ async function ensureDirectories() {
         BACKUP_DIR,
         path.join(ASSETS_DIR, 'images'),
         path.join(ASSETS_DIR, 'icons'),
+        USER_ASSETS_DIR,
         LOGS_DIR,
         LAUNCHERS_DIR
     ];

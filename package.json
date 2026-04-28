@@ -1,6 +1,6 @@
 {
   "name": "easy-htui",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A customizable entertainment hub with CRUD functionality and organized structure",
   "main": "main.js",
   "scripts": {

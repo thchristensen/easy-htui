@@ -9,8 +9,6 @@ config/config.json
 config/backups/
 assets/icons/*
 launchers/
-claude/*
-
 # But keep the directories and example files
 !config/.gitkeep
 !config/backups/.gitkeep
@@ -31,6 +29,7 @@ desktop.ini
 .vscode/
 .idea/
 .claude/
+~/.claude/
 *.swp
 *.swo
 *~

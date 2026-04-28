@@ -413,6 +413,14 @@ class EasyHTUI {
                 this.navigation.exitNavigationMode();
             }
         });
+
+        // Fullscreen toggle
+        const fullscreenToggle = document.getElementById('fullscreen-toggle');
+        if (fullscreenToggle && window.electronAPI) {
+            fullscreenToggle.addEventListener('click', () => {
+                window.electronAPI.toggleFullscreen();
+            });
+        }
     }
 
     // Time display functions

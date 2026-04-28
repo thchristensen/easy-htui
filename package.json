@@ -2,31 +2,79 @@
   "name": "easy-htui",
   "version": "2.0.0",
   "description": "A customizable entertainment hub with CRUD functionality and organized structure",
-  "main": "server.js",
+  "main": "main.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "electron": "electron .",
+    "electron-dev": "set NODE_ENV=development && electron .",
+    "build": "electron-builder --win",
     "setup": "npm install && node -e \"require('fs').mkdirSync('config/backups', {recursive: true}); require('fs').mkdirSync('assets/icons', {recursive: true}); require('fs').mkdirSync('logs', {recursive: true});\"",
-    "clean": "rimraf node_modules package-lock.json",
+    "clean": "rimraf node_modules package-lock.json dist",
     "reset": "npm run clean && npm install",
     "backup": "node -e \"const fs=require('fs'); const path=require('path'); const date=new Date().toISOString().split('T')[0]; fs.copyFileSync('config/config.json', `config/backups/manual-backup-${date}.json`); console.log('Manual backup created');\"",
     "logs": "type logs\\server.log 2>nul || echo No logs found",
     "status": "curl -s http://localhost:3000/api/status || echo Server not running"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
-    "body-parser": "^1.20.2"
+    "express": "^4.18.2"
   },
   "devDependencies": {
+    "electron": "^41.3.0",
+    "electron-builder": "^26.8.1",
     "nodemon": "^3.0.1",
     "rimraf": "^5.0.5"
   },
+  "build": {
+    "appId": "com.easyhtui.app",
+    "productName": "Easy HTUI",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "server.js",
+      "index.html",
+      "package.json",
+      "default_config.json",
+      "js/**/*",
+      "assets/**/*",
+      "build/icons/**",
+      "node_modules/**/*",
+      "!node_modules/.cache/**/*"
+    ],
+    "asarUnpack": [
+      "index.html",
+      "js/**/*",
+      "assets/**/*",
+      "build/icons/**",
+      "default_config.json"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "build/icons/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Easy HTUI"
+    },
+    "portable": {
+      "artifactName": "easy-htui-portable.exe"
+    }
+  },
   "keywords": [
-    "entertainment", 
-    "launcher", 
-    "kiosk", 
-    "media-center", 
+    "entertainment",
+    "launcher",
+    "kiosk",
+    "media-center",
     "tv-interface",
     "controller-support",
     "crud"
@@ -38,6 +86,6 @@
   "engines": {
     "node": ">=14.0.0"
   },
-  "author": "",
+  "author": "thchristensen",
   "license": "MIT"
 }

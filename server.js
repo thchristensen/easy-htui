@@ -8,18 +8,25 @@ const https = require('https'); // Add for Steam API calls
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const CONFIG_FILE = path.join(__dirname, 'config', 'config.json');
-const BACKUP_DIR = path.join(__dirname, 'config', 'backups');
-const ASSETS_DIR = path.join(__dirname, 'assets');
-const LOGS_DIR = path.join(__dirname, 'logs');
-const LAUNCHERS_DIR = path.join(__dirname, 'launchers');
+
+// APP_DATA_DIR is set by main.js (Electron) to app.getPath('userData').
+// When running standalone via `node server.js`, it falls back to __dirname.
+const DATA_DIR = process.env.APP_DATA_DIR || __dirname;
+
+const staticDir = __dirname.includes('app.asar') ? __dirname.replace('app.asar', 'app.asar.unpacked') : __dirname;
+
+const CONFIG_FILE  = path.join(DATA_DIR, 'config', 'config.json');
+const BACKUP_DIR   = path.join(DATA_DIR, 'config', 'backups');
+const ASSETS_DIR   = path.join(staticDir, 'assets');   // read-only, stays with the app
+const LOGS_DIR     = path.join(DATA_DIR, 'logs');
+const LAUNCHERS_DIR = path.join(DATA_DIR, 'launchers');
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
 // Serve static files from root directory for main app files
-app.use(express.static(__dirname, {
+app.use(express.static(staticDir, {
     index: false
 }));
 
@@ -692,7 +699,7 @@ app.post('/api/cleanup-launchers', async (req, res) => {
 
 // Serve the main application
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(staticDir, 'index.html'));
 });
 
 // Error handling middleware
@@ -841,14 +848,26 @@ async function startServer() {
         });
     } catch (error) {
         await logMessage(`Failed to start server: ${error.message}`, 'error');
-        process.exit(1);
+        // Only exit the process when running standalone — inside Electron,
+        // throw so main.js can show a proper error dialog.
+        if (require.main === module) {
+            process.exit(1);
+        } else {
+            throw error;
+        }
     }
 }
 
-// Graceful shutdown
-process.on('SIGINT', async () => {
-    await logMessage('Shutting down server...', 'info');
-    process.exit(0);
-});
+// Graceful shutdown — only handle SIGINT when running standalone
+if (require.main === module) {
+    process.on('SIGINT', async () => {
+        await logMessage('Shutting down server...', 'info');
+        process.exit(0);
+    });
+}
 
-startServer();
+if (require.main === module) {
+    startServer();
+} else {
+    startServer();
+}

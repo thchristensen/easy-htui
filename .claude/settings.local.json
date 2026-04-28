@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx electron-builder *)",
+      "Bash(node -e ' *)",
+      "Bash(npm run *)"
+    ]
+  }
+}

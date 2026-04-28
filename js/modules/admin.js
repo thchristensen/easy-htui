@@ -8,7 +8,7 @@ export class AdminManager {
 
     // Setup admin toggle button
     setupAdminToggle() {
-        const adminToggle = document.querySelector('.admin-toggle');
+        const adminToggle = document.getElementById('admin-mode-toggle') || document.querySelector('.admin-toggle:not(#fullscreen-toggle)');
         if (adminToggle) {
             adminToggle.addEventListener('click', () => this.toggleAdminMode());
         } else {
@@ -21,8 +21,8 @@ export class AdminManager {
         AppState.isAdminMode = !AppState.isAdminMode;
         document.body.classList.toggle('admin-mode', AppState.isAdminMode);
         
-        const toggle = document.querySelector('.admin-toggle');
-        toggle.classList.toggle('active', AppState.isAdminMode);
+        const toggle = document.getElementById('admin-mode-toggle') || document.querySelector('.admin-toggle:not(#fullscreen-toggle)');
+        if (toggle) toggle.classList.toggle('active', AppState.isAdminMode);
         
         this.app.renderApps();
 
@@ -46,6 +46,7 @@ export class AdminManager {
             <button onclick="window.app.admin.showAddAppForm()">Add New App</button>
             <button onclick="window.app.admin.showAddCategoryForm()">Add New Category</button>
             <button onclick="window.app.weather.showSettings()">Weather Settings</button>
+            <button onclick="window.app.admin.showSettings()">App Settings</button>
             <button onclick="window.app.admin.exportConfig()">Export Config</button>
             <button onclick="window.app.admin.showImportConfig()">Import Config</button>
             <button onclick="window.app.admin.cleanupLaunchers()">Cleanup Launchers</button>
@@ -669,6 +670,69 @@ export class AdminManager {
             } else {
                 colorsLabel.style.display = 'block';
             }
+        }
+    }
+
+    // Settings (Hotkey)
+    showSettings() {
+        const currentHotkey = AppState.config.hotkey || 'Alt+`';
+        const formHtml = `
+            <div class="form-container">
+                <h3>App Settings</h3>
+                <form id="settings-form">
+                    <label>Global Hotkey: 
+                        <input type="text" name="hotkey" value="${currentHotkey}" required>
+                        <small style="color: rgba(255,255,255,0.7); font-size: 0.8rem;">
+                            E.g. "Alt+\`", "CommandOrControl+X", "Shift+Space"
+                        </small>
+                    </label>
+                    <div class="form-buttons">
+                        <button type="submit">Save</button>
+                        <button type="button" onclick="window.app.admin.closeModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        this.showFormModal(formHtml);
+        
+        document.getElementById('settings-form').onsubmit = async (e) => {
+            e.preventDefault();
+            await this.handleSettings(e);
+        };
+    }
+
+    async handleSettings(event) {
+        const formData = new FormData(event.target);
+        const { hotkey } = Object.fromEntries(formData);
+        
+        try {
+            // Apply immediately using Electron API if available
+            if (window.electronAPI) {
+                const result = await window.electronAPI.setHotkey(hotkey);
+                if (!result.ok) {
+                    this.app.showError('Failed to register hotkey. It might be invalid or already in use.');
+                    return;
+                }
+            }
+            
+            AppState.config.hotkey = hotkey;
+            
+            const response = await fetch('/api/config', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(AppState.config)
+            });
+            
+            if (response.ok) {
+                this.closeModal();
+                this.app.showMessage('Settings updated successfully!');
+            } else {
+                const error = await response.json();
+                this.app.showError(error.error || 'Failed to save settings');
+            }
+        } catch (error) {
+            this.app.showError('Failed to save settings: ' + error.message);
         }
     }
 

@@ -412,6 +412,13 @@ isInGlobalTopRow(element) {
     // Setup keyboard event listeners
     setupKeyboardEvents() {
         document.addEventListener('keydown', (e) => {
+            // F11 toggles fullscreen (Electron only — no-op in browser)
+            if (e.key === 'F11') {
+                e.preventDefault();
+                window.electronAPI?.toggleFullscreen();
+                return;
+            }
+
             // Admin mode shortcut
             if (e.ctrlKey && e.key === 'a') {
                 e.preventDefault();
